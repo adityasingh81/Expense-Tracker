@@ -1,0 +1,1389 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker</title>
+
+<style>
+/* GENERAL PAGE STYLING */
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: #f0f2f5;
+    color: #333;
+    transition: 0.3s;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* BUDGET POPUP */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 15px;
+}
+
+.popup {
+    background: white;
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.popup h2 {
+    color: #2E7D32;
+}
+
+#main-app {
+    display: none;
+}
+
+/* INPUTS AND BUTTONS */
+input, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    color: #333;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #2196F3;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+button {
+    border: none;
+    padding: 11px 15px;
+    border-radius: 6px;
+    color: white;
+    background: #333;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+/* HEADER AND MONTH SELECTION */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    margin: 0;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.month-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.month-control input {
+    width: 160px;
+}
+
+/* BUDGET AND DASHBOARD CARDS */
+.budget-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 22px;
+}
+
+.budget-section p {
+    margin: 0;
+}
+
+.green-btn {
+    background: #4CAF50;
+}
+
+.blue-btn {
+    background: #2196F3;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.card {
+    padding: 20px 10px;
+    border-radius: 9px;
+    text-align: center;
+    color: white;
+}
+
+.card h3 {
+    font-size: 14px;
+    font-weight: normal;
+    margin: 0;
+}
+
+.card p {
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
+}
+
+.budget-card {
+    background: linear-gradient(135deg,#4CAF50,#2E7D32);
+}
+
+.spent-card {
+    background: linear-gradient(135deg,#F44336,#C62828);
+}
+
+.balance-card {
+    background: linear-gradient(135deg,#2196F3,#1565C0);
+}
+
+/* BUDGET PROGRESS BAR */
+.progress-section {
+    margin-bottom: 25px;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #4CAF50;
+    transition: 0.4s;
+}
+
+/* ADD EXPENSE SECTION */
+.section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 22px;
+}
+
+.section h3 {
+    margin-top: 0;
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+form button {
+    font-size: 15px;
+}
+
+/* SAVINGS GOAL */
+.goal-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 22px;
+}
+
+.goal-section h3 {
+    margin-top: 0;
+}
+
+.goal-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.goal-form input {
+    flex: 1;
+    min-width: 0;
+}
+
+.goal-form button {
+    background: #8E44AD;
+}
+
+.goal-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #666;
+    gap: 10px;
+}
+
+.goal-bar {
+    height: 12px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.goal-fill {
+    height: 100%;
+    width: 0%;
+    background: #8E44AD;
+    transition: 0.4s;
+}
+
+/* SEARCH AND CATEGORY SUMMARY */
+.search-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-section input {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-section select {
+    max-width: 180px;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.category-item:last-child {
+    border-bottom: none;
+}
+
+/* EXPENSE HISTORY TABLE */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 580px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+th {
+    background: #f8f9fa;
+}
+
+.amount {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.delete-btn {
+    background: #F44336;
+    padding: 7px 10px;
+    font-size: 12px;
+}
+
+.empty {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-style: italic;
+}
+
+/* DARK MODE */
+body.dark-mode {
+    background: #181818;
+    color: #eee;
+}
+
+body.dark-mode .container,
+body.dark-mode .section,
+body.dark-mode .goal-section,
+body.dark-mode .budget-section {
+    background: #252525;
+    color: #eee;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+    background: #333;
+    color: white;
+    border-color: #555;
+}
+
+body.dark-mode label,
+body.dark-mode .progress-text,
+body.dark-mode .goal-info {
+    color: #ccc;
+}
+
+body.dark-mode th {
+    background: #333;
+}
+
+body.dark-mode td {
+    border-color: #444;
+}
+
+body.dark-mode .category-item {
+    border-color: #444;
+}
+
+body.dark-mode .progress-bar,
+body.dark-mode .goal-bar {
+    background: #444;
+}
+
+body.dark-mode .popup {
+    background: #252525;
+    color: white;
+}
+
+/* RESPONSIVE DESIGN FOR MOBILE SCREENS */
+@media(max-width:600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .month-control {
+        width: 100%;
+    }
+
+    .month-control input {
+        flex: 1;
+    }
+
+    form {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: span 1;
+    }
+
+    .budget-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-section {
+        flex-direction: column;
+    }
+
+    .search-section select {
+        max-width: none;
+    }
+
+    .goal-form {
+        flex-direction: column;
+    }
+
+    .header-buttons {
+        justify-content: space-between;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- POPUP TO SET INITIAL MONTHLY BUDGET -->
+<div class="overlay" id="budget-popup">
+
+    <div class="popup">
+
+        <h2>💰 Welcome!</h2>
+
+        <p>Welcome to your Expense Tracker.
+        Set your monthly budget to get started.</p>
+
+        <label>Select Month</label>
+        <input type="month" id="initial-month" required>
+
+        <br><br>
+
+        <label>Monthly Budget (₹)</label>
+        <input type="number" id="initial-budget"
+        placeholder="Enter your budget" min="0.01" required>
+
+        <br><br>
+
+        <button class="green-btn" id="start-btn">
+            Start Tracking →
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- MAIN EXPENSE TRACKER APPLICATION -->
+<div class="container" id="main-app">
+
+    <div class="header">
+
+        <h2>💵 Expense Tracker</h2>
+
+        <div class="header-buttons">
+            <button id="theme-btn">🌙 Dark Mode</button>
+            <button id="change-budget-btn" class="green-btn">
+                + Update Budget
+            </button>
+        </div>
+
+    </div>
+
+    <!-- SELECT MONTH -->
+    <div class="month-control">
+        <label for="selected-month">Month:</label>
+        <input type="month" id="selected-month">
+    </div>
+
+    <br>
+
+    <!-- DISPLAY BUDGET, EXPENSES AND BALANCE -->
+    <div class="dashboard">
+
+        <div class="card budget-card">
+            <h3>Total Budget</h3>
+            <p>₹<span id="total-budget">0</span></p>
+        </div>
+
+        <div class="card spent-card">
+            <h3>Total Spent</h3>
+            <p>₹<span id="total-spent">0</span></p>
+        </div>
+
+        <div class="card balance-card">
+            <h3>Remaining Balance</h3>
+            <p>₹<span id="remaining">0</span></p>
+        </div>
+
+    </div>
+
+    <!-- SHOW HOW MUCH OF THE MONTHLY BUDGET IS USED -->
+    <div class="progress-section">
+
+        <div class="progress-text">
+            <span>Monthly Budget Usage</span>
+            <span id="percentage">0% used</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+
+    </div>
+
+    <!-- SAVINGS GOAL SECTION -->
+    <div class="goal-section">
+
+        <h3>🎯 My Savings Goal</h3>
+
+        <div class="goal-form">
+
+            <input type="number" id="savings-input"
+            placeholder="Enter savings target (₹)"
+            min="0.01" step="0.01">
+
+            <button id="save-goal-btn">Set Goal</button>
+
+        </div>
+
+        <div class="goal-info">
+            <span>Current Savings: ₹<span id="current-savings">0</span></span>
+            <span>Target: ₹<span id="target-savings">0</span></span>
+        </div>
+
+        <div class="goal-bar">
+            <div class="goal-fill" id="goal-progress"></div>
+        </div>
+
+        <p id="goal-message">Set a savings goal to get started.</p>
+
+    </div>
+
+    <!-- FORM TO ADD A NEW EXPENSE -->
+    <div class="section">
+
+        <h3>➕ Add New Expense</h3>
+
+        <form id="expense-form">
+
+            <div>
+                <label>Amount (₹)</label>
+                <input type="number" id="amount"
+                placeholder="e.g. 150" min="0.01"
+                step="0.01" required>
+            </div>
+
+            <div>
+                <label>Date</label>
+                <input type="date" id="expense-date" required>
+            </div>
+
+            <div>
+                <label>Expense Type</label>
+
+                <select id="category" required>
+                    <option value="" disabled selected>
+                        Select Category
+                    </option>
+                    <option value="Food">🍔 Food</option>
+                    <option value="Travel">🚌 Travel</option>
+                    <option value="Shopping">🛍️ Shopping</option>
+                    <option value="Stationery">📚 Stationery</option>
+                    <option value="Other">✨ Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Description</label>
+                <input type="text" id="description"
+                placeholder="e.g. Lunch" maxlength="100" required>
+            </div>
+
+            <button type="submit" class="blue-btn full-width">
+                Add Expense
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- DISPLAY TOTAL EXPENSES FOR EACH CATEGORY -->
+    <div class="section">
+
+        <h3>📊 Category-wise Expenses</h3>
+        <div id="category-list"></div>
+
+    </div>
+
+    <!-- EXPENSE HISTORY WITH SEARCH AND FILTER -->
+    <h3>📋 Expense History</h3>
+
+    <div class="search-section">
+
+        <input type="text" id="search-input"
+        placeholder="🔍 Search expense...">
+
+        <select id="filter-category">
+            <option value="All">All Categories</option>
+            <option value="Food">Food</option>
+            <option value="Travel">Travel</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Stationery">Stationery</option>
+            <option value="Other">Other</option>
+        </select>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="expense-list"></tbody>
+
+        </table>
+
+    </div>
+
+    <div class="empty" id="empty-message">
+        No expenses added for this month.
+    </div>
+
+</div>
+
+
+<script>
+
+// GET HTML ELEMENTS USING THEIR IDs
+const popup = document.getElementById("budget-popup");
+const mainApp = document.getElementById("main-app");
+
+const initialMonth = document.getElementById("initial-month");
+const initialBudget = document.getElementById("initial-budget");
+
+const startBtn = document.getElementById("start-btn");
+const selectedMonth = document.getElementById("selected-month");
+
+const budgetBtn = document.getElementById("change-budget-btn");
+const form = document.getElementById("expense-form");
+
+const expenseList = document.getElementById("expense-list");
+const emptyMessage = document.getElementById("empty-message");
+
+const searchInput = document.getElementById("search-input");
+const filterCategory = document.getElementById("filter-category");
+
+
+// LOAD SAVED MONTHLY DATA FROM LOCAL STORAGE
+// If no data exists, an empty object is used.
+let monthlyData = JSON.parse(
+    localStorage.getItem("monthlyData")
+) || {};
+
+let currentMonth = "";
+
+
+// GET CURRENT MONTH IN YYYY-MM FORMAT
+function getCurrentMonth() {
+
+    const today = new Date();
+
+    return today.getFullYear() + "-" +
+    String(today.getMonth() + 1).padStart(2, "0");
+
+}
+
+initialMonth.value = getCurrentMonth();
+selectedMonth.value = getCurrentMonth();
+
+
+// SAVE MONTHLY DATA IN LOCAL STORAGE
+function saveData() {
+
+    localStorage.setItem(
+        "monthlyData",
+        JSON.stringify(monthlyData)
+    );
+
+}
+
+
+// FORMAT AMOUNTS ACCORDING TO INDIAN NUMBER SYSTEM
+function formatMoney(amount) {
+
+    return Number(amount).toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    });
+
+}
+
+
+// GET DATA OF THE CURRENTLY SELECTED MONTH
+function getMonthData() {
+
+    // Create a new monthly record if it does not exist.
+    if (!monthlyData[currentMonth]) {
+
+        monthlyData[currentMonth] = {
+            budget: 0,
+            expenses: [],
+            savingsGoal: 0
+        };
+
+    }
+
+    // Make sure the required properties exist.
+    if (!Array.isArray(monthlyData[currentMonth].expenses)) {
+        monthlyData[currentMonth].expenses = [];
+    }
+
+    if (monthlyData[currentMonth].savingsGoal === undefined) {
+        monthlyData[currentMonth].savingsGoal = 0;
+    }
+
+    return monthlyData[currentMonth];
+
+}
+
+
+// SHOW THE INITIAL BUDGET POPUP
+function showPopup() {
+
+    popup.style.display = "flex";
+    mainApp.style.display = "none";
+
+}
+
+
+// DISPLAY THE MAIN DASHBOARD
+function showDashboard() {
+
+    popup.style.display = "none";
+    mainApp.style.display = "block";
+
+}
+
+
+// SET MINIMUM AND MAXIMUM DATE FOR SELECTED MONTH
+function setDateLimits() {
+
+    const dateInput = document.getElementById("expense-date");
+
+    const parts = currentMonth.split("-");
+
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+
+    const lastDay = new Date(year, month, 0).getDate();
+
+    dateInput.min = currentMonth + "-01";
+
+    dateInput.max = currentMonth + "-" +
+    String(lastDay).padStart(2, "0");
+
+    // Set a valid default date if the current date is outside the selected month.
+    if (!dateInput.value ||
+        !dateInput.value.startsWith(currentMonth)) {
+
+        const today = getCurrentMonth() === currentMonth
+            ? new Date().getDate()
+            : 1;
+
+        dateInput.value = currentMonth + "-" +
+        String(today).padStart(2, "0");
+
+    }
+
+}
+
+
+// START TRACKING AFTER ENTERING MONTH AND BUDGET
+startBtn.addEventListener("click", function() {
+
+    const month = initialMonth.value;
+    const budget = Number(initialBudget.value);
+
+    if (!month) {
+        alert("Please select a month.");
+        return;
+    }
+
+    if (!Number.isFinite(budget) || budget <= 0) {
+        alert("Please enter a valid budget.");
+        return;
+    }
+
+    // Create a new month or update its existing budget.
+    if (!monthlyData[month]) {
+
+        monthlyData[month] = {
+            budget: budget,
+            expenses: [],
+            savingsGoal: 0
+        };
+
+    } else {
+
+        monthlyData[month].budget = budget;
+
+    }
+
+    currentMonth = month;
+
+    selectedMonth.value = month;
+
+    saveData();
+
+    showDashboard();
+
+    setDateLimits();
+
+    renderDashboard();
+
+});
+
+
+// CHANGE THE SELECTED MONTH
+selectedMonth.addEventListener("change", function() {
+
+    const month = selectedMonth.value;
+
+    if (!month) {
+        selectedMonth.value = currentMonth;
+        return;
+    }
+
+    // Ask for a budget if the selected month has no budget.
+    if (!monthlyData[month] ||
+        monthlyData[month].budget <= 0) {
+
+        initialMonth.value = month;
+        initialBudget.value = "";
+
+        showPopup();
+
+        return;
+    }
+
+    currentMonth = month;
+
+    setDateLimits();
+
+    renderDashboard();
+
+});
+
+
+// UPDATE THE MONTHLY BUDGET
+budgetBtn.addEventListener("click", function() {
+
+    initialMonth.value = currentMonth;
+    initialBudget.value = getMonthData().budget;
+
+    showPopup();
+
+});
+
+
+// CALCULATE TOTAL EXPENSES USING REDUCE()
+function calculateSpent() {
+
+    return getMonthData().expenses.reduce(
+        function(total, expense) {
+            return total + expense.amount;
+        }, 0
+    );
+
+}
+
+
+// UPDATE BUDGET, SPENT AMOUNT AND REMAINING BALANCE
+function updateDashboard() {
+
+    const data = getMonthData();
+
+    const spent = calculateSpent();
+
+    const balance = data.budget - spent;
+
+    document.getElementById("total-budget").textContent =
+        formatMoney(data.budget);
+
+    document.getElementById("total-spent").textContent =
+        formatMoney(spent);
+
+    document.getElementById("remaining").textContent =
+        formatMoney(balance);
+
+    // Calculate percentage of budget used.
+    const percentage = data.budget > 0
+        ? (spent / data.budget) * 100
+        : 0;
+
+    document.getElementById("percentage").textContent =
+        percentage.toFixed(1) + "% used";
+
+    const progress = document.getElementById("progress");
+
+    progress.style.width = Math.min(percentage, 100) + "%";
+
+    // Change progress bar colour according to budget usage.
+    if (percentage >= 90) {
+        progress.style.background = "#F44336";
+    } else if (percentage >= 75) {
+        progress.style.background = "#FF9800";
+    } else {
+        progress.style.background = "#4CAF50";
+    }
+
+}
+
+
+// SHOW WARNING WHEN BUDGET USAGE REACHES 75% OR 90%
+function checkBudgetWarning(oldPercentage, newPercentage) {
+
+    if (oldPercentage < 90 && newPercentage >= 90) {
+
+        alert("⚠️ Warning! You have used 90% of your monthly budget!");
+
+    } else if (oldPercentage < 75 && newPercentage >= 75) {
+
+        alert("⚠️ You have used 75% of your monthly budget!");
+
+    }
+
+}
+
+
+// SAVE THE USER'S SAVINGS GOAL
+document.getElementById("save-goal-btn").addEventListener(
+    "click", function() {
+
+        const goal = Number(
+            document.getElementById("savings-input").value
+        );
+
+        if (!Number.isFinite(goal) || goal <= 0) {
+            alert("Please enter a valid savings goal.");
+            return;
+        }
+
+        getMonthData().savingsGoal = goal;
+
+        saveData();
+
+        document.getElementById("savings-input").value = "";
+
+        updateSavingsGoal();
+
+        alert("Savings goal saved successfully!");
+
+    }
+);
+
+
+// CALCULATE AND DISPLAY SAVINGS PROGRESS
+function updateSavingsGoal() {
+
+    const data = getMonthData();
+
+    const balance = data.budget - calculateSpent();
+
+    const goal = data.savingsGoal;
+
+    const savings = Math.max(balance, 0);
+
+    document.getElementById("current-savings").textContent =
+        formatMoney(savings);
+
+    document.getElementById("target-savings").textContent =
+        formatMoney(goal);
+
+    let percentage = goal > 0
+        ? (savings / goal) * 100
+        : 0;
+
+    document.getElementById("goal-progress").style.width =
+        Math.min(percentage, 100) + "%";
+
+    const message = document.getElementById("goal-message");
+
+    if (goal <= 0) {
+
+        message.textContent = "Set a savings goal to get started.";
+
+    } else if (savings >= goal) {
+
+        message.textContent = "🎉 Congratulations! You reached your savings goal!";
+
+    } else {
+
+        message.textContent =
+            "You need ₹" + formatMoney(goal - savings) +
+            " more to reach your savings goal.";
+
+    }
+
+}
+
+
+// CALCULATE EXPENSE TOTALS FOR EACH CATEGORY
+function updateCategories() {
+
+    const categories = [
+        "Food",
+        "Travel",
+        "Shopping",
+        "Stationery",
+        "Other"
+    ];
+
+    const categoryList =
+        document.getElementById("category-list");
+
+    categoryList.innerHTML = "";
+
+    const expenses = getMonthData().expenses;
+
+    categories.forEach(function(category) {
+
+        // FILTER expenses belonging to the current category.
+        // REDUCE calculates the total amount for that category.
+        const total = expenses
+
+            .filter(function(expense) {
+                return expense.category === category;
+            })
+
+            .reduce(function(sum, expense) {
+                return sum + expense.amount;
+            }, 0);
+
+        // Create HTML elements dynamically using JavaScript.
+        const item = document.createElement("div");
+        item.className = "category-item";
+
+        const name = document.createElement("span");
+        name.textContent = category;
+
+        const amount = document.createElement("strong");
+        amount.textContent = "₹" + formatMoney(total);
+
+        item.appendChild(name);
+        item.appendChild(amount);
+
+        categoryList.appendChild(item);
+
+    });
+
+}
+
+
+// DISPLAY EXPENSES IN THE HISTORY TABLE
+function displayExpenses() {
+
+    expenseList.innerHTML = "";
+
+    const expenses = getMonthData().expenses;
+
+    const search = searchInput.value.toLowerCase();
+
+    const category = filterCategory.value;
+
+    // FILTER expenses according to search text and selected category.
+    const filteredExpenses = expenses.filter(function(expense) {
+
+        const matchesSearch =
+            expense.description.toLowerCase().includes(search);
+
+        const matchesCategory =
+            category === "All" || expense.category === category;
+
+        return matchesSearch && matchesCategory;
+
+    });
+
+    // Display a message if no expenses match the conditions.
+    emptyMessage.style.display =
+        filteredExpenses.length === 0 ? "block" : "none";
+
+    if (filteredExpenses.length === 0) {
+        emptyMessage.textContent = expenses.length === 0
+            ? "No expenses added for this month."
+            : "No matching expenses found.";
+    }
+
+    // Reverse the copied array to show newest expenses first.
+    filteredExpenses.slice().reverse().forEach(function(expense) {
+
+        const row = document.createElement("tr");
+
+        const dateCell = document.createElement("td");
+
+        dateCell.textContent = new Date(
+            expense.date + "T00:00:00"
+        ).toLocaleDateString("en-GB");
+
+        const categoryCell = document.createElement("td");
+        categoryCell.textContent = expense.category;
+
+        const descriptionCell = document.createElement("td");
+        descriptionCell.textContent = expense.description;
+
+        const amountCell = document.createElement("td");
+        amountCell.className = "amount";
+        amountCell.textContent = "-₹" + formatMoney(expense.amount);
+
+        const actionCell = document.createElement("td");
+
+        // Create a delete button for each expense.
+        const deleteButton = document.createElement("button");
+
+        deleteButton.textContent = "Delete";
+        deleteButton.className = "delete-btn";
+
+        deleteButton.addEventListener("click", function() {
+            deleteExpense(expense.id);
+        });
+
+        actionCell.appendChild(deleteButton);
+
+        row.appendChild(dateCell);
+        row.appendChild(categoryCell);
+        row.appendChild(descriptionCell);
+        row.appendChild(amountCell);
+        row.appendChild(actionCell);
+
+        expenseList.appendChild(row);
+
+    });
+
+}
+
+
+// SEARCH AND CATEGORY FILTER EVENT LISTENERS
+searchInput.addEventListener("input", displayExpenses);
+
+filterCategory.addEventListener("change", displayExpenses);
+
+
+// ADD A NEW EXPENSE WHEN THE FORM IS SUBMITTED
+form.addEventListener("submit", function(e) {
+
+    // Prevent the page from refreshing after form submission.
+    e.preventDefault();
+
+    const amount = Number(
+        document.getElementById("amount").value
+    );
+
+    const date = document.getElementById("expense-date").value;
+
+    const category = document.getElementById("category").value;
+
+    const description =
+        document.getElementById("description").value.trim();
+
+    // VALIDATION
+    if (!Number.isFinite(amount) || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    if (!date || !category || !description) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    if (!date.startsWith(currentMonth)) {
+        alert("Please select a date from the selected month.");
+        return;
+    }
+
+    const data = getMonthData();
+
+    const spent = calculateSpent();
+
+    // Prevent adding an expense greater than the remaining budget.
+    if (spent + amount > data.budget) {
+        alert("Your expense exceeds the remaining budget!");
+        return;
+    }
+
+    const oldPercentage = data.budget > 0
+        ? (spent / data.budget) * 100
+        : 0;
+
+    // Store expense details in an object.
+    const expense = {
+
+        id: Date.now() + Math.random(),
+        amount: amount,
+        date: date,
+        category: category,
+        description: description
+
+    };
+
+    // Add the expense object to the monthly expenses array.
+    data.expenses.push(expense);
+
+    const newPercentage = data.budget > 0
+        ? ((spent + amount) / data.budget) * 100
+        : 0;
+
+    saveData();
+
+    form.reset();
+
+    setDateLimits();
+
+    renderDashboard();
+
+    checkBudgetWarning(oldPercentage, newPercentage);
+
+});
+
+
+// DELETE AN EXPENSE USING ITS UNIQUE ID
+function deleteExpense(id) {
+
+    if (confirm("Do you want to delete this expense?")) {
+
+        const data = getMonthData();
+
+        // FILTER keeps every expense except the selected one.
+        data.expenses = data.expenses.filter(
+            function(expense) {
+                return expense.id !== id;
+            }
+        );
+
+        saveData();
+
+        renderDashboard();
+
+    }
+
+}
+
+
+// DARK MODE FUNCTIONALITY
+const themeBtn = document.getElementById("theme-btn");
+
+// APPLY THEME SAVED IN LOCAL STORAGE
+function applyTheme() {
+
+    const isDark = localStorage.getItem("darkMode") === "true";
+
+    document.body.classList.toggle("dark-mode", isDark);
+
+    themeBtn.textContent = isDark
+        ? "☀️ Light Mode"
+        : "🌙 Dark Mode";
+
+}
+
+// CHANGE BETWEEN DARK MODE AND LIGHT MODE
+themeBtn.addEventListener("click", function() {
+
+    const isDark = document.body.classList.toggle("dark-mode");
+
+    localStorage.setItem("darkMode", isDark);
+
+    applyTheme();
+
+});
+
+
+// REFRESH ALL DASHBOARD SECTIONS
+function renderDashboard() {
+
+    updateDashboard();
+
+    updateCategories();
+
+    updateSavingsGoal();
+
+    displayExpenses();
+
+}
+
+
+// INITIALIZE THE APPLICATION WHEN THE PAGE LOADS
+function initializeApp() {
+
+    applyTheme();
+
+    const month = getCurrentMonth();
+
+    // If the current month already has a budget, open the dashboard.
+    if (monthlyData[month] &&
+        monthlyData[month].budget > 0) {
+
+        currentMonth = month;
+
+        selectedMonth.value = month;
+
+        showDashboard();
+
+        setDateLimits();
+
+        renderDashboard();
+
+    } else {
+
+        // Otherwise, ask the user to set an initial budget.
+        initialMonth.value = month;
+
+        showPopup();
+
+    }
+
+}
+
+// RUN THE APPLICATION
+initializeApp();
+
+</script>
+
+</body>
+</html>
